@@ -18,23 +18,28 @@
 		}
 		
 		function initConfig(id) {
-			config.a = 1
-			config.b = 2
-			config.dx = 0.15
+			config.a = 2
+			config.b = 3
+			
+			config.dx = 0.1
+			config.dy = 0.1
+			config.dt = 0.1
 			
 			config.x1 = -Math.PI
 			config.x2 = Math.PI
-			config.y1 = -config.a
-			config.y2 = config.a
+			config.y1 = -Math.PI
+			config.y2 = Math.PI
+			config.t1 = -Math.PI
+			config.t2 = Math.PI
 			config.x0 = 0
-			config.y0 = the_curve(config.x0)
+			config.y0 = 0
 			
 			config.marginW = 50
 			config.marginH = 20
 			config.areaW = window.innerWidth - config.marginW*2
 			config.areaH = window.innerHeight - config.marginH*2
-			config.realX0 = config.areaW/2 + config.marginW
-			config.realY0 = config.areaH/2 + config.marginH
+			config.areaX0 = config.areaW/2 + config.marginW
+			config.areaY0 = config.areaH/2 + config.marginH
 			
 			config.kX = config.areaW / (config.x2 - config.x1)
 			config.kY = config.areaH / (config.y2 - config.y1)
@@ -49,22 +54,29 @@
 			
 			config.x = config.x0
 			config.y = config.y0
+			config.t = config.t1
 			
 			config.point.w = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
 			config.point.h = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
+			
+			center = document.getElementById('center')
+			center.style.left = (config.areaX0-1)+'px'
+			center.style.bottom = (config.areaY0-1)+'px'
 		}
 		
 		function movePoint() {
-			realX = config.realX0 + config.kX * config.x - config.point.w/2
-			realY = config.realY0 + config.kY * config.y - config.point.w/2
+			realX = config.areaX0 + config.kX * config.x - config.point.w/2
+			realY = config.areaY0 + config.kY * config.y - config.point.w/2
 			config.point.style.left = realX+'px'
 			config.point.style.bottom = realY+'px'
 		}
 		
 		function nextXY() {
-			config.y = the_curve(config.x)
-			config.x += config.dx * Math.abs( the_curve(config.dx) )
-			if (config.x > config.x2) config.x = config.x1
+			config.x = the_curve(config.t)
+			config.y = 0
+			
+			config.t += config.dt
+			if (config.t > config.t2) config.t = config.t1
 		}
 		
 		function tick() {
@@ -75,7 +87,7 @@
 		
 		function start() {
 			tick()
-			config.interval = window.setInterval('tick()',1)
+			config.interval = window.setInterval('tick()',50)
 		}
 	</script>
 </head>
@@ -83,6 +95,7 @@
 <body onLoad="initApp('point'); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
+	<div id='center' style='position:absolute; width:3px; height:3px; background-color:grey;'></div>
 	<div 
 		id='point' 
 		onClick="start()" 
