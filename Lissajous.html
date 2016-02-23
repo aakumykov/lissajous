@@ -7,67 +7,78 @@
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 	<script>
 		config = new Object
+		function the_curve(x) {
+			return 0.5*Math.sin(3*x)
+		}
+		
 		function initApp(id) {
-			//alert('initApp('+id+')')
 			initConfig(id)
 			movePoint()
-			
-			//config.interval = window.setInterval('tick',1000)
 		}
+		
 		function initConfig(id) {
 			//alert('initConfig('+id+')')
 			config.point = document.getElementById(id)
 			pointW = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
 			pointH = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
 			
-			config.w = 2
+			config.w = 2*Math.PI
 			config.h = 2
-			config.x0 = 0
-			config.y0 = 0
 			
-			config.areaW = window.innerWidth - pointW
-			config.areaH = window.innerHeight - pointH
-			config.areaX0 = (config.areaW / config.w) + (pointW/2)
-			config.areaY0 = (config.areaH / config.h) + (pointH/2)
+			config.areaW = window.innerWidth - (pointW/2)*2
+			config.areaH = window.innerHeight - (pointH/2)*2
+			config.areaX0 = config.areaW/2 + pointW/2
+			config.areaY0 = config.areaH/2 + pointW/2
 			
 			config.kX = config.areaW / config.w
 			config.kY = config.areaH / config.h
 			
+			//config.t = 0
+			//config.dt = 0.1
 			
-			config.t = 0
-			config.dt = 0.1
+			config.x0 = -Math.PI
+			config.y0 = the_curve(config.x0)
 			
-			config.x = config.y0
-			config.y = config.x0
+			config.dx = 0.02
+			
+			config.x = config.x0
+			config.y = config.y0
+			
+			//alert('x: '+config.x+', y: '+config.y)
 		}
+		
 		function movePoint() {
-			config.point.style.left = ((config.areaX0 + config.kX * config.x) - (pointW/2)) + 'px'
-			config.point.style.bottom = ((config.areaY0 + config.kY * config.y) - (pointH/2)) + 'px'
+			areaX = config.areaX0 + config.kX * config.x
+			areaY = config.areaY0 + config.kY * config.y
+			//alert(config.areaW+'x'+config.areaH +"\n\n"+ config.areaX0+', '+config.areaY0 +"\n\n"+ areaX+', '+areaY)
+			config.point.style.left = areaX + 'px'
+			config.point.style.bottom = areaY + 'px'
 		}
+		
 		function nextXY() {
-			config.x = Math.sin(config.t)
-			config.t += config.dt
-			if (config.t >= 2*Math.PI) {
-				config.t = 0
-			}
+			config.y = the_curve(config.x)
+			config.x += config.dx
+			if (config.x >= Math.PI) config.x = -Math.PI
 		}
+		
 		function tick() {
 			//alert('tick()')
 			nextXY()
 			movePoint()
 		}
-		function start_stop() {
+		
+		function start() {
 			tick()
-			config.interval = window.setInterval('tick()',5)
+			config.interval = window.setInterval('tick()',0.1)
 		}
 	</script>
 </head>
 
-<body onLoad="initApp('point')" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp('point'); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div 
 		id='point' 
-		onClick="start_stop()" 
+		onClick="start()" 
 		style='position:absolute; width:20px; height:20px; background:crimson; border-radius:10px; box-shadow:1px 1px 2px rgba(128,128,128,0.4);'
 	></div>
 	<!--<input id='xArea'><input id='yArea'><br>
