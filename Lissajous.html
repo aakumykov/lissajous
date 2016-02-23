@@ -21,20 +21,23 @@
 			config.a = 2
 			config.b = 3
 			
-			config.dx = 0.1
-			config.dy = 0.1
-			config.dt = 0.1
+			config.dx = config.dy = 0.1
+			config.dtX = config.dtY = 0.1
 			
 			config.x1 = -Math.PI
 			config.x2 = Math.PI
 			config.y1 = -Math.PI
 			config.y2 = Math.PI
-			config.t1 = -Math.PI
-			config.t2 = Math.PI
+			
+			config.tX1 = -Math.PI
+			config.tX2 = Math.PI
+			config.tY1 = -Math.PI/2
+			config.tY2 = Math.PI*3/2
+			
 			config.x0 = 0
 			config.y0 = 0
 			
-			config.marginW = 50
+			config.marginW = 20
 			config.marginH = 20
 			config.areaW = window.innerWidth - config.marginW*2
 			config.areaH = window.innerHeight - config.marginH*2
@@ -54,7 +57,8 @@
 			
 			config.x = config.x0
 			config.y = config.y0
-			config.t = config.t1
+			config.tX = config.tX1
+			config.tY = config.tY1
 			
 			config.point.w = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
 			config.point.h = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
@@ -64,19 +68,22 @@
 			center.style.bottom = (config.areaY0-1)+'px'
 		}
 		
+		function nextXY() {
+			config.x = the_curve(config.tX)
+			config.y = the_curve(config.tY)
+			
+			config.tX += config.dtX
+			config.tY += config.dtY
+			
+			if (config.tX > config.tX2) config.tX = config.tX1
+			if (config.tY > config.tY2) config.tY = config.tY1
+		}
+		
 		function movePoint() {
 			realX = config.areaX0 + config.kX * config.x - config.point.w/2
 			realY = config.areaY0 + config.kY * config.y - config.point.w/2
 			config.point.style.left = realX+'px'
 			config.point.style.bottom = realY+'px'
-		}
-		
-		function nextXY() {
-			config.x = the_curve(config.t)
-			config.y = 0
-			
-			config.t += config.dt
-			if (config.t > config.t2) config.t = config.t1
 		}
 		
 		function tick() {
@@ -87,7 +94,7 @@
 		
 		function start() {
 			tick()
-			config.interval = window.setInterval('tick()',50)
+			config.interval = window.setInterval('tick()',25)
 		}
 	</script>
 </head>
