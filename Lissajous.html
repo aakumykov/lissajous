@@ -8,7 +8,8 @@
 	<script>
 		config = new Object
 		function the_curve(x) {
-			return 0.5*Math.sin(3*x)
+			// a*sin(b*x)
+			return config.a*Math.sin(config.b*x)
 		}
 		
 		function initApp(id) {
@@ -17,48 +18,53 @@
 		}
 		
 		function initConfig(id) {
-			//alert('initConfig('+id+')')
-			config.point = document.getElementById(id)
-			pointW = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
-			pointH = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
+			config.a = 1
+			config.b = 2
+			config.dx = 0.15
 			
-			config.w = 2*Math.PI
-			config.h = 2
-			
-			config.areaW = window.innerWidth - (pointW/2)*2
-			config.areaH = window.innerHeight - (pointH/2)*2
-			config.areaX0 = config.areaW/2 + pointW/2
-			config.areaY0 = config.areaH/2 + pointW/2
-			
-			config.kX = config.areaW / config.w
-			config.kY = config.areaH / config.h
-			
-			//config.t = 0
-			//config.dt = 0.1
-			
-			config.x0 = -Math.PI
+			config.x1 = -Math.PI
+			config.x2 = Math.PI
+			config.y1 = -config.a
+			config.y2 = config.a
+			config.x0 = 0
 			config.y0 = the_curve(config.x0)
 			
-			config.dx = 0.02
+			config.marginW = 50
+			config.marginH = 20
+			config.areaW = window.innerWidth - config.marginW*2
+			config.areaH = window.innerHeight - config.marginH*2
+			config.realX0 = config.areaW/2 + config.marginW
+			config.realY0 = config.areaH/2 + config.marginH
+			
+			config.kX = config.areaW / (config.x2 - config.x1)
+			config.kY = config.areaH / (config.y2 - config.y1)
+			
+			area = document.getElementById('area')
+			area.style.width = config.areaW+'px'
+			area.style.height = config.areaH+'px'
+			area.style.left = config.marginW+'px'
+			area.style.top = config.marginH+'px'
+			
+			config.point = document.getElementById(id)
 			
 			config.x = config.x0
 			config.y = config.y0
 			
-			//alert('x: '+config.x+', y: '+config.y)
+			config.point.w = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
+			config.point.h = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
 		}
 		
 		function movePoint() {
-			areaX = config.areaX0 + config.kX * config.x
-			areaY = config.areaY0 + config.kY * config.y
-			//alert(config.areaW+'x'+config.areaH +"\n\n"+ config.areaX0+', '+config.areaY0 +"\n\n"+ areaX+', '+areaY)
-			config.point.style.left = areaX + 'px'
-			config.point.style.bottom = areaY + 'px'
+			realX = config.realX0 + config.kX * config.x - config.point.w/2
+			realY = config.realY0 + config.kY * config.y - config.point.w/2
+			config.point.style.left = realX+'px'
+			config.point.style.bottom = realY+'px'
 		}
 		
 		function nextXY() {
 			config.y = the_curve(config.x)
-			config.x += config.dx
-			if (config.x >= Math.PI) config.x = -Math.PI
+			config.x += config.dx * Math.abs( the_curve(config.dx) )
+			if (config.x > config.x2) config.x = config.x1
 		}
 		
 		function tick() {
@@ -69,17 +75,18 @@
 		
 		function start() {
 			tick()
-			config.interval = window.setInterval('tick()',0.1)
+			config.interval = window.setInterval('tick()',1)
 		}
 	</script>
 </head>
 
 <body onLoad="initApp('point'); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
+	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div 
 		id='point' 
 		onClick="start()" 
-		style='position:absolute; width:20px; height:20px; background:crimson; border-radius:10px; box-shadow:1px 1px 2px rgba(128,128,128,0.4);'
+		style='position:absolute; width:30px; height:30px; background:crimson; border-radius:12px 6px 12px 6px; box-shadow:1px 1px 2px rgba(128,128,128,0.4);'
 	></div>
 	<!--<input id='xArea'><input id='yArea'><br>
 	<input id='xAreaR'><input id='yAreaR'><br>-->
