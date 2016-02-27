@@ -53,7 +53,8 @@
 			area.style.left = config.marginW+'px'
 			area.style.top = config.marginH+'px'
 			
-			config.point = document.getElementById(id)
+			//config.point = document.getElementById(id)
+			config.point = createPoint(100,100)
 			
 			config.x = config.x0
 			config.y = config.y0
@@ -94,7 +95,35 @@
 		
 		function start() {
 			tick()
-			config.interval = window.setInterval('tick()',25)
+			config.interval = window.setInterval('tick()',35)
+		}
+		
+		function createPoint(x,y,lifeTime=1000) {
+			//id = 'point_'+x+y
+			id = 'point'
+			
+			point = document.createElement('DIV')
+			point.width = 30
+			point.height = 30
+			
+			point.setAttribute('id',id)
+			point.style.position = 'absolute'
+			point.style.width = point.width + 'px'
+			point.style.height = point.height + 'px'
+			point.style.backgroundColor = 'crimson'
+			point.style.borderRadius = '12px 6px 12px 6px'
+			point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)'
+			point.style.left = x - point.width/2 + 'px'
+			point.style.top = y - point.height/2 + 'px'
+			
+			document.body.appendChild(point)
+			//window.setTimeout('removePoint('+id+')',lifeTime)
+			
+			return point
+		}
+		
+		function removePoint(point) {
+			point.parentNode.removeChild(point)
 		}
 	</script>
 </head>
@@ -103,13 +132,16 @@
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div id='center' style='position:absolute; width:3px; height:3px; background-color:grey;'></div>
-	<div 
+	<!--<div 
 		id='point' 
 		onClick="start()" 
 		style='position:absolute; width:30px; height:30px; background:crimson; border-radius:12px 6px 12px 6px; box-shadow:1px 1px 2px rgba(128,128,128,0.4);'
-	></div>
+	></div>-->
 	<!--<input id='xArea'><input id='yArea'><br>
 	<input id='xAreaR'><input id='yAreaR'><br>-->
+	<script>
+		//createPoint(10,10,100)
+	</script>
 </body>
 
 </html>
