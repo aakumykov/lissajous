@@ -8,21 +8,23 @@
 	<script>
 		config = new Object
 		function the_curve(x) {
-			// a*sin(b*x)
 			return config.a*Math.sin(config.b*x)
 		}
 		
-		function initApp(id) {
-			initConfig(id)
-			movePoint()
+		function initApp(interval,pointLifetime=0) {
+			initConfig(interval,pointLifetime)
+			//movePoint()
 		}
 		
-		function initConfig(id) {
+		function initConfig(interval,pointLifetime=0) {
+			config.interval = interval // миллисекунд
+			config.pointLifetime = 0==pointLifetime ? 10*config.interval : pointLifetime
+			
 			config.a = 2
 			config.b = 3
 			
-			config.dx = config.dy = 0.1
-			config.dtX = config.dtY = 0.1
+			config.dx = config.dy = 0.05
+			config.dtX = config.dtY = 0.05
 			
 			config.x1 = -Math.PI
 			config.x2 = Math.PI
@@ -53,16 +55,10 @@
 			area.style.left = config.marginW+'px'
 			area.style.top = config.marginH+'px'
 			
-			//config.point = document.getElementById(id)
-			config.point = createPoint(100,100)
-			
 			config.x = config.x0
 			config.y = config.y0
 			config.tX = config.tX1
 			config.tY = config.tY1
-			
-			config.point.w = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
-			config.point.h = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
 			
 			center = document.getElementById('center')
 			center.style.left = (config.areaX0-1)+'px'
@@ -81,10 +77,15 @@
 		}
 		
 		function movePoint() {
-			realX = config.areaX0 + config.kX * config.x - config.point.w/2
-			realY = config.areaY0 + config.kY * config.y - config.point.w/2
-			config.point.style.left = realX+'px'
-			config.point.style.bottom = realY+'px'
+			realX = config.areaX0 + config.kX * config.x
+			realY = config.areaY0 + config.kY * config.y
+			//alert('movePoint('+realX+','+realY+')')
+			createPoint(realX,realY)
+		}
+		
+		function start() {
+			tick()
+			config.intervalHandler = window.setInterval('tick()',config.interval)
 		}
 		
 		function tick() {
@@ -93,31 +94,28 @@
 			movePoint()
 		}
 		
-		function start() {
-			tick()
-			config.interval = window.setInterval('tick()',35)
-		}
-		
-		function createPoint(x,y,lifeTime=1000) {
-			//id = 'point_'+x+y
-			id = 'point'
+		function createPoint(x,y) {
+			id = 'point_'+Math.round(Math.random()*1000)
 			
 			point = document.createElement('DIV')
-			point.width = 30
-			point.height = 30
+			point.width = 20
+			point.height = 20
+			point.xCornerRadius = Math.round(point.width/2)
+			point.yCornerRadius = Math.round(point.height/5)
 			
 			point.setAttribute('id',id)
 			point.style.position = 'absolute'
 			point.style.width = point.width + 'px'
 			point.style.height = point.height + 'px'
 			point.style.backgroundColor = 'crimson'
-			point.style.borderRadius = '12px 6px 12px 6px'
+			point.style.borderRadius = point.xCornerRadius+'px '+point.yCornerRadius+'px '+point.xCornerRadius+'px '+point.yCornerRadius+'px '
 			point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)'
 			point.style.left = x - point.width/2 + 'px'
 			point.style.top = y - point.height/2 + 'px'
 			
 			document.body.appendChild(point)
-			//window.setTimeout('removePoint('+id+')',lifeTime)
+			//alert('createPoint(), '+config.interval)
+			window.setTimeout('removePoint('+id+')', config.pointLifetime )
 			
 			return point
 		}
@@ -128,7 +126,7 @@
 	</script>
 </head>
 
-<body onLoad="initApp('point'); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp(20); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div id='center' style='position:absolute; width:3px; height:3px; background-color:grey;'></div>
