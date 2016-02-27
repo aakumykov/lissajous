@@ -42,10 +42,13 @@
 			config.x0 = 0
 			config.y0 = 0
 			
+			winWidth = window.innerWidth
+			winHeight = window.innerHeight
+			rectSize = winWidth > winHeight ? winHeight : winWidth
 			config.marginW = 20
 			config.marginH = 20
-			config.areaW = window.innerWidth - config.marginW*2
-			config.areaH = window.innerHeight - config.marginH*2
+			config.areaW = rectSize - config.marginW*2
+			config.areaH = rectSize - config.marginH*2
 			config.areaX0 = config.areaW/2 + config.marginW
 			config.areaY0 = config.areaH/2 + config.marginH
 			
