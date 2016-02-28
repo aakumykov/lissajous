@@ -5,6 +5,12 @@
 <head>
 	<title>Лиссажу2</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<style>
+		* { margin:0px; padding:0px; }
+		.panel { position:absolute; right:20px; }
+		#controlPanel { position:absolute; right:20px; }
+		#controlPanel FIELDSET { margin-bottom:10px; }
+	</style>
 	<script>
 		config = new Object
 		
@@ -18,6 +24,9 @@
 		}
 		
 		function initConfig(interval,pointLifetime=0) {
+			//служебные параметры
+			config.run = true
+			
 			//рабочая область
 			winWidth = window.innerWidth
 			winHeight = window.innerHeight
@@ -45,7 +54,7 @@
 			config.pointLifetime = 0==pointLifetime ? 10*config.interval : pointLifetime
 			
 			config.a = 2
-			config.b = 3.3
+			config.b = 3
 			
 			//шкала времени
 			config.tWidth = 2*Math.PI
@@ -77,15 +86,19 @@
 		}
 		
 		function tick() {
-			//alert('tick()')
-			nextXY()
-			movePoint()
+			if (config.run) {
+				nextXY()
+				movePoint()
+			}
 		}
 		
 		function nextXY() {
 			config.x = the_curve(config.tX += config.dtX)
 			config.y = the_curve(config.tY += config.dtY)
+			
 			//alert(config.x+', '+config.y)
+			//debug('tX: '+config.tX+', tY: '+config.tY+', x: '+config.x+', y: '+config.y)
+			debug(config.tX+', '+config.x+', '+config.tY+', '+config.y)
 			
 			if (config.tX > config.tX2) config.tX = config.tX1
 			if (config.tY > config.tY2) config.tY = config.tY1
@@ -127,18 +140,21 @@
 		function removePoint(point) {
 			point.parentNode.removeChild(point)
 		}
+	
+		function debug(info) {
+			debugPiece = document.createElement('p')
+			//debugPiece.innerHTML=info
+			debugPiece.innerHTML='<tt>'+info+'</tt>'
+			config.debugPanel.appendChild(debugPiece)
+		}
 	</script>
-	<style>
-		#controlPanel { position:absolute; right:20px; }
-		#controlPanel FIELDSET { margin-bottom:10px; }
-	</style>
 </head>
 
-<body onLoad="initApp(100,2000); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp(50,1000); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div id='center' style='position:absolute; width:3px; height:3px; background-color:#BFBFBF;'></div>
-	<div id='controlPanel'>
+	<!--<div id='controlPanel'>
 		<fieldset>
 			<legend>A:</legend>
 			<input 
@@ -171,7 +187,7 @@
 				onMouseUp="this.pressed=false" 
 				onMouseMove="if (this.pressed) config.a = paramA.value = this.value"
 			>
-			<input type="button" value="#" title="сброс" onCLick="config.a = paramA.value = paramA.defaultValue">
+			<input type="button" value="#" title="сброс" onClick="config.a = paramA.value = paramA.defaultValue">
 		</fieldset>
 		<fieldset>
 			<legend>B:</legend>
@@ -205,10 +221,17 @@
 				onMouseUp="this.pressed=false" 
 				onMouseMove="if (this.pressed) config.b = paramB.value = this.value"
 			>
-			<input type="button" value="#" title="сброс" onCLick="config.b = paramB.value = paramB.defaultValue">
+			<input type="button" value="#" title="сброс" onClick="config.b = paramB.value = paramB.defaultValue">
 		</fieldset>
-		
-	</div>
+	</div>-->
+	
+	<fieldset id='debugPanel' class='panel' style="overflow:auto; font-size:10px; border:1px dotted grey; width:45%; height:99%;">
+		<legend>Отладка <input type='button' value='Старт/Пауза' onClick="config.run=!config.run"></legend>
+	</fieldset>
+	<script>
+		config.debugPanel=document.getElementById('debugPanel');
+	</script>
+	
 </body>
 
 </html>
