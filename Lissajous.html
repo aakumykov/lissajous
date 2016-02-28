@@ -8,6 +8,11 @@
 	<script>
 		config = new Object
 		
+		function rounded(n,precise=2) {
+			m = 10*precise
+			return Math.ceil(Math.round(n*m))/m
+		}
+		
 		function the_curve(x) {
 			return config.a*Math.sin(config.b*x)
 		}
@@ -48,13 +53,14 @@
 			config.b = 3
 			
 			//шкала времени
-			config.tWidth = 2*Math.PI
+			config.tWidth = rounded(2*Math.PI)
 			
-			config.tX1 = -Math.PI
+			config.tX1 = rounded(-Math.PI)
 			config.tX2 = config.tX1 + config.tWidth
 			
-			config.tY1 = -Math.PI/2
+			config.tY1 = rounded(-Math.PI/2)
 			config.tY2 = config.tY1 + config.tWidth
+			//alert(config.tX2+', '+config.tY2)
 			
 			//config.dtX = 0.05
 			//config.dtY = 0.049
@@ -64,6 +70,8 @@
 			//соотношение между экраном и формулой
 			config.kX = config.areaW / (config.tX2 - config.tX1)
 			config.kY = config.areaH / (config.tY2 - config.tY1)
+			config.kX = rounded(config.kX)
+			config.kY = rounded(config.kY)
 			//alert('kX='+config.kX+"\n"+'kY='+config.kY)
 			
 			//начальные параметры
@@ -83,12 +91,24 @@
 		}
 		
 		function nextXY() {
-			config.x = the_curve(config.tX += config.dtX)
-			config.y = the_curve(config.tY += config.dtY)
+			config.x = the_curve(config.tX)
+			config.y = the_curve(config.tY)
+			
+			config.x = rounded(config.x)
+			config.y = rounded(config.y)
 			//alert(config.x+', '+config.y)
 			
-			if (config.tX > config.tX2) config.tX = config.tX1
-			if (config.tY > config.tY2) config.tY = config.tY1
+			config.tX = rounded(config.tX + config.dtX)
+			config.tY = rounded(config.tY + config.dtY)
+			
+			if (config.tX > config.tX2) {
+				config.tX = rounded(config.tX - config.tWidth)
+				//alert('config.tX='+config.tX)
+			}
+			if (config.tY > config.tY2) {
+				config.tY = rounded(config.tY - config.tWidth)
+				//alert('config.tY='+config.tY)
+			}
 		}
 		
 		function movePoint() {
@@ -134,7 +154,7 @@
 	</style>
 </head>
 
-<body onLoad="initApp(20,440); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp(20,1000); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div id='center' style='position:absolute; width:3px; height:3px; background-color:#BFBFBF;'></div>
