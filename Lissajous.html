@@ -54,16 +54,18 @@
 			config.pointLifetime = 0==pointLifetime ? 10*config.interval : pointLifetime
 			
 			config.a = 2
-			config.b = 3
+			config.b = 1.4
 			
 			//шкала времени
-			config.tWidth = 2*Math.PI
+			config.period = Math.PI/config.b
 			
-			config.tX1 = -Math.PI
-			config.tX2 = config.tX1 + config.tWidth
+			config.tX1 = -config.period
+			config.tX2 = config.period
 			
-			config.tY1 = -Math.PI/2
-			config.tY2 = config.tY1 + config.tWidth
+			config.tY1 = -config.period/2
+			config.tY2 = 1.5*config.period
+			
+			//alert('period='+config.period+"\n"+'2*period='+2*config.period+"\n"+'tX1='+config.tX1+"\n"+'tX2='+config.tX2+"\n"+'tY1='+config.tY1+"\n"+'tY2='+config.tY2)
 			
 			//config.dtX = 0.05
 			//config.dtY = 0.049
@@ -95,10 +97,9 @@
 		function nextXY() {
 			config.x = the_curve(config.tX += config.dtX)
 			config.y = the_curve(config.tY += config.dtY)
+			//config.y = 0
 			
-			//alert(config.x+', '+config.y)
-			//debug('tX: '+config.tX+', tY: '+config.tY+', x: '+config.x+', y: '+config.y)
-			debug(config.tX+', '+config.x+', '+config.tY+', '+config.y)
+			//debug(config.tX+', '+config.x+', '+config.tY+', '+config.y)
 			
 			if (config.tX > config.tX2) config.tX = config.tX1
 			if (config.tY > config.tY2) config.tY = config.tY1
@@ -150,7 +151,7 @@
 	</script>
 </head>
 
-<body onLoad="initApp(50,1000); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp(20,880); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div id='center' style='position:absolute; width:3px; height:3px; background-color:#BFBFBF;'></div>
