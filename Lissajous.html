@@ -5,91 +5,234 @@
 <head>
 	<title>Лиссажу2</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<style>
+		* { margin:0px; padding:0px; }
+		.panel { position:absolute; right:20px; }
+		#controlPanel { position:absolute; right:20px; }
+		#controlPanel FIELDSET { margin-bottom:10px; }
+	</style>
 	<script>
 		config = new Object
+		
 		function the_curve(x) {
-			// a*sin(b*x)
 			return config.a*Math.sin(config.b*x)
 		}
 		
-		function initApp(id) {
-			initConfig(id)
-			movePoint()
+		function initApp(interval,pointLifetime=0) {
+			initConfig(interval,pointLifetime)
+			//movePoint()
 		}
 		
-		function initConfig(id) {
-			config.a = 1
-			config.b = 2
-			config.dx = 0.15
+		function initConfig(interval,pointLifetime=0) {
+			//служебные параметры
+			config.run = true
 			
-			config.x1 = -Math.PI
-			config.x2 = Math.PI
-			config.y1 = -config.a
-			config.y2 = config.a
-			config.x0 = 0
-			config.y0 = the_curve(config.x0)
-			
-			config.marginW = 50
+			//рабочая область
+			winWidth = window.innerWidth
+			winHeight = window.innerHeight
+			rectSize = winWidth > winHeight ? winHeight : winWidth
+			config.marginW = 20
 			config.marginH = 20
-			config.areaW = window.innerWidth - config.marginW*2
-			config.areaH = window.innerHeight - config.marginH*2
-			config.realX0 = config.areaW/2 + config.marginW
-			config.realY0 = config.areaH/2 + config.marginH
+			config.areaW = rectSize - config.marginW*2
+			config.areaH = rectSize - config.marginH*2
+			config.areaX0 = config.areaW/2 + config.marginW
+			config.areaY0 = config.areaH/2 + config.marginH
 			
-			config.kX = config.areaW / (config.x2 - config.x1)
-			config.kY = config.areaH / (config.y2 - config.y1)
-			
+			//настройка html-объектов
 			area = document.getElementById('area')
 			area.style.width = config.areaW+'px'
 			area.style.height = config.areaH+'px'
 			area.style.left = config.marginW+'px'
 			area.style.top = config.marginH+'px'
 			
-			config.point = document.getElementById(id)
+			center = document.getElementById('center')
+			center.style.left = (config.areaX0-1)+'px'
+			center.style.bottom = (config.areaY0-1)+'px'
+
+			//параметры формулы
+			config.interval = interval // миллисекунд
+			config.pointLifetime = 0==pointLifetime ? 10*config.interval : pointLifetime
 			
-			config.x = config.x0
-			config.y = config.y0
+			config.a = 2
+			config.b = 1.4
 			
-			config.point.w = Number( config.point.style.width.trim().replace(/[^\d]+$/,'') )
-			config.point.h = Number( config.point.style.height.trim().replace(/[^\d]+$/,'') )
-		}
-		
-		function movePoint() {
-			realX = config.realX0 + config.kX * config.x - config.point.w/2
-			realY = config.realY0 + config.kY * config.y - config.point.w/2
-			config.point.style.left = realX+'px'
-			config.point.style.bottom = realY+'px'
-		}
-		
-		function nextXY() {
-			config.y = the_curve(config.x)
-			config.x += config.dx * Math.abs( the_curve(config.dx) )
-			if (config.x > config.x2) config.x = config.x1
-		}
-		
-		function tick() {
-			//alert('tick()')
-			nextXY()
-			movePoint()
+			//шкала времени
+			config.period = Math.PI/config.b
+			
+			config.tX1 = -config.period
+			config.tX2 = config.period
+			
+			config.tY1 = -config.period/2
+			config.tY2 = 1.5*config.period
+			
+			//alert('period='+config.period+"\n"+'2*period='+2*config.period+"\n"+'tX1='+config.tX1+"\n"+'tX2='+config.tX2+"\n"+'tY1='+config.tY1+"\n"+'tY2='+config.tY2)
+			
+			//config.dtX = 0.05
+			//config.dtY = 0.049
+			config.dtX = 0.05
+			config.dtY = 0.05
+			
+			//соотношение между экраном и формулой
+			config.kX = config.areaW / (config.tX2 - config.tX1)
+			config.kY = config.areaH / (config.tY2 - config.tY1)
+			//alert('kX='+config.kX+"\n"+'kY='+config.kY)
+			
+			//начальные параметры
+			config.tX = config.tX1
+			config.tY = config.tY1
 		}
 		
 		function start() {
 			tick()
-			config.interval = window.setInterval('tick()',1)
+			config.intervalHandler = window.setInterval('tick()',config.interval)
+		}
+		
+		function tick() {
+			if (config.run) {
+				nextXY()
+				movePoint()
+			}
+		}
+		
+		function nextXY() {
+			config.x = the_curve(config.tX += config.dtX)
+			config.y = the_curve(config.tY += config.dtY)
+			//config.y = 0
+			
+			//debug(config.tX+', '+config.x+', '+config.tY+', '+config.y)
+			
+			if (config.tX > config.tX2) config.tX = config.tX1
+			if (config.tY > config.tY2) config.tY = config.tY1
+		}
+		
+		function movePoint() {
+			realX = config.areaX0 + config.kX * config.x
+			realY = config.areaY0 + config.kY * config.y
+			//alert('movePoint('+realX+','+realY+')')
+			createPoint(realX,realY)
+		}
+		
+		function createPoint(x,y) {
+			id = 'point_'+Math.round(Math.random()*1000)
+			
+			point = document.createElement('DIV')
+			point.width = 20
+			point.height = 20
+			point.xCornerRadius = Math.round(point.width/2)
+			point.yCornerRadius = Math.round(point.height/5)
+			
+			point.setAttribute('id',id)
+			point.style.position = 'absolute'
+			point.style.width = point.width + 'px'
+			point.style.height = point.height + 'px'
+			point.style.backgroundColor = 'crimson'
+			point.style.borderRadius = point.xCornerRadius+'px '+point.yCornerRadius+'px '+point.xCornerRadius+'px '+point.yCornerRadius+'px '
+			point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)'
+			point.style.left = x - point.width/2 + 'px'
+			point.style.top = y - point.height/2 + 'px'
+			
+			document.body.appendChild(point)
+			//alert('createPoint(), '+config.interval)
+			window.setTimeout('removePoint('+id+')', config.pointLifetime )
+			
+			return point
+		}
+		
+		function removePoint(point) {
+			point.parentNode.removeChild(point)
+		}
+	
+		function debug(info) {
+			debugPiece = document.createElement('p')
+			//debugPiece.innerHTML=info
+			debugPiece.innerHTML='<tt>'+info+'</tt>'
+			config.debugPanel.appendChild(debugPiece)
 		}
 	</script>
 </head>
 
-<body onLoad="initApp('point'); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp(20,880); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
-	<div 
-		id='point' 
-		onClick="start()" 
-		style='position:absolute; width:30px; height:30px; background:crimson; border-radius:12px 6px 12px 6px; box-shadow:1px 1px 2px rgba(128,128,128,0.4);'
-	></div>
-	<!--<input id='xArea'><input id='yArea'><br>
-	<input id='xAreaR'><input id='yAreaR'><br>-->
+	<div id='center' style='position:absolute; width:3px; height:3px; background-color:#BFBFBF;'></div>
+	<!--<div id='controlPanel'>
+		<fieldset>
+			<legend>A:</legend>
+			<input 
+				id="paramA" 
+				type="number" 
+				
+				value="2" 
+				defaultValue="2" 
+				min="0" 
+				max="6.0" 
+				step="0.1" 
+				
+				size="6" 
+				class="centered" 
+				onChange="config.a = sliderA.value = this.value" 
+				onClick="sliderA.value=this.value" 
+				onMouseDown="sliderA.value=this.value" 
+				style="width:50px"
+			>
+			<input 
+				id="sliderA" 
+				type="range" 
+				
+				value="2" 
+				min="0" 
+				max="6.0" 
+				step="0.1" 
+				
+				onMouseDown="this.pressed=true" 
+				onMouseUp="this.pressed=false" 
+				onMouseMove="if (this.pressed) config.a = paramA.value = this.value"
+			>
+			<input type="button" value="#" title="сброс" onClick="config.a = paramA.value = paramA.defaultValue">
+		</fieldset>
+		<fieldset>
+			<legend>B:</legend>
+			<input 
+				id="paramB" 
+				type="number" 
+				
+				value="3" 
+				defaultValue="3" 
+				min="0" 
+				max="6.0" 
+				step="0.1" 
+				
+				size="6" 
+				class="centered" 
+				onChange="config.b = sliderB.value = this.value" 
+				onClick="sliderB.value=this.value" 
+				onMouseDown="sliderB.value=this.value" 
+				style="width:50px"
+			>
+			<input 
+				id="sliderB" 
+				type="range" 
+				
+				value="3" 
+				min="0" 
+				max="6.0" 
+				step="0.1" 
+				
+				onMouseDown="this.pressed=true" 
+				onMouseUp="this.pressed=false" 
+				onMouseMove="if (this.pressed) config.b = paramB.value = this.value"
+			>
+			<input type="button" value="#" title="сброс" onClick="config.b = paramB.value = paramB.defaultValue">
+		</fieldset>
+	</div>-->
+	
+	<fieldset id='debugPanel' class='panel' style="overflow:auto; font-size:10px; border:1px dotted grey; width:45%; height:99%;">
+		<legend>Отладка <input type='button' value='Старт/Пауза' onClick="config.run=!config.run"></legend>
+	</fieldset>
+	<script>
+		config.debugPanel=document.getElementById('debugPanel');
+	</script>
+	
 </body>
 
 </html>
