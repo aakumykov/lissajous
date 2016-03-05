@@ -10,6 +10,28 @@
 		.panel { position:absolute; right:20px; }
 		#controlPanel { position:absolute; right:20px; }
 		#controlPanel FIELDSET { margin-bottom:10px; }
+		#debugPanel { 
+			overflow:auto; 
+			font-size:10px; 
+			border:1px dotted grey; 
+			width:45%; 
+			height:80%; 
+			margin-top:10%; 
+		}
+		#paramsPanel {
+			position:absolute;
+			right:10px;
+			top:10px;
+			width:45%;
+			height:18%;
+			border:1px dotted blueviolet;
+		}
+		#formula {
+			text-align:center;
+			font-size:24px;
+		}
+		#a { color:red; }
+		#b { color:blue; }
 	</style>
 	<script>
 		config = new Object
@@ -18,12 +40,12 @@
 			return config.a*Math.sin(config.b*x)
 		}
 		
-		function initApp(interval,pointLifetime=0) {
-			initConfig(interval,pointLifetime)
+		function initApp(interval,pointLifetime=0,a=1,b=1) {
+			initConfig(interval,pointLifetime,a,b)
 			//movePoint()
 		}
 		
-		function initConfig(interval,pointLifetime=0) {
+		function initConfig(interval,pointLifetime=0,a,b) {
 			//служебные параметры
 			config.run = true
 			
@@ -53,11 +75,15 @@
 			config.interval = interval // миллисекунд
 			config.pointLifetime = 0==pointLifetime ? 10*config.interval : pointLifetime
 			
-			config.a = 2
-			config.b = 1.4
+			config.a = a
+			config.b = b
+			
+			displayA(config.a)
+			displayB(config.b)
 			
 			//шкала времени
 			config.period = Math.PI/config.b
+				
 			
 			config.tX1 = -config.period
 			config.tX2 = config.period
@@ -116,8 +142,8 @@
 			id = 'point_'+Math.round(Math.random()*1000)
 			
 			point = document.createElement('DIV')
-			point.width = 20
-			point.height = 20
+			point.width = 5
+			point.height = 5
 			point.xCornerRadius = Math.round(point.width/2)
 			point.yCornerRadius = Math.round(point.height/5)
 			
@@ -148,10 +174,17 @@
 			debugPiece.innerHTML='<tt>'+info+'</tt>'
 			config.debugPanel.appendChild(debugPiece)
 		}
+	
+		function displayA(arg) {
+			document.getElementById('a').innerHTML = arg
+		}
+		function displayB(arg) {
+			document.getElementById('b').innerHTML = arg
+		}
 	</script>
 </head>
 
-<body onLoad="initApp(20,880); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
+<body onLoad="initApp(20,880,2,1); start();" style='width:100%; height:100%; background-color:#FFF9C3;'>
 	<body>
 	<div id='area' style='position:absolute; border:1px dotted coral;'></div>
 	<div id='center' style='position:absolute; width:3px; height:3px; background-color:#BFBFBF;'></div>
@@ -226,7 +259,11 @@
 		</fieldset>
 	</div>-->
 	
-	<fieldset id='debugPanel' class='panel' style="overflow:auto; font-size:10px; border:1px dotted grey; width:45%; height:99%;">
+	<fieldset id='paramsPanel'><legend>Параметры</legend>
+		<p id='formula'>y = <span id='a'>a</span><small>&times;</small>Sin(<span id='b'>b</span><small>&times;</small>x)</p>
+	</fieldset>
+	
+	<fieldset id='debugPanel' class='panel'>
 		<legend>Отладка <input type='button' value='Старт/Пауза' onClick="config.run=!config.run"></legend>
 	</fieldset>
 	<script>
