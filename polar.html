@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>полярные координаты</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+		<style>* { margin:0px; padding:0px; }
+			BODY { overflow:hidden; }
+		</style>
+		<script>
+			var config = new Object;
+				config.x0 = 200;
+				config.y0 = 200;
+				config.pointWidth = config.pointHeight = 10;
+			
+			function initApp() {
+				createDebugPanel();
+			}
+			function debug(data) {
+				var p = document.createElement('p')
+					p.style.paddingLeft = '3px'
+					p.style.fontSize = '11px'
+					p.style.fontFamily = 'monospace'
+					p.innerHTML = data
+				var panel = document.getElementById('debugPanel')
+					panel.appendChild(p)
+			}
+			function createDebugPanel(id='debugPanel') {
+				var panel = document.createElement('div')
+					panel.style.position = 'absolute'
+					panel.style.right = '0.5%'
+					panel.style.top = '1%'
+					panel.style.width = '48%'
+					panel.style.height = '98%'
+					panel.style.backgroundColor = 'rgb(231,231,231)'
+					panel.style.overflow = 'auto'
+					panel.id = id
+				document.getElementById('body').appendChild(panel)
+				return panel
+			}
+			function createPoint(x,y){
+				var point = document.createElement('div');
+					point.width = config.pointWidth;
+					point.height = config.pointHeight;
+					point.style.width = point.width+'px';
+					point.style.height = point.height+'px';
+					point.style.position = 'absolute';
+					point.style.backgroundColor = 'deepskyblue';
+					point.style.borderRadius = point.width+'px';
+					point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)';
+					point.style.left = config.x0 + x + 'px';
+					point.style.top = config.y0 + y + 'px';
+				document.body.appendChild(point);
+			}
+		</script>
+	</head>
+	<body id='body'>
+		<script>initApp();</script>
+		<script>
+			var dFi = 0.1;
+			var r = 100;
+			var c = 1;
+			
+			var perimeter = Math.round(2*r*Math.PI);
+			debug('периметр: '+perimeter);
+			
+			var pointsCount = Math.round(2*Math.PI/dFi);
+			debug('точек математически: '+pointsCount);
+			
+			var pointSize = Math.round(perimeter/pointsCount);
+			debug('математический размер точки: '+pointSize);
+			if (0==pointSize) pointSize = 1;
+			debug('скорректированный размер точки: '+pointSize);
+			config.pointWidth = config.pointHeight = pointSize;
+
+			for(var fi=0; fi<2*Math.PI; fi+=dFi) {
+				var x = r * Math.cos(fi);
+				var y = r * Math.sin(fi);
+				//debug(c+': x='+x+', y='+y);
+				c++;
+				createPoint(x,y);
+			}
+		</script>
+	</body>
+</html>
