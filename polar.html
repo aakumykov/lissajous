@@ -25,20 +25,20 @@
 				config.perimeter = Math.round(2*config.radius*Math.PI);
 				debug('периметр: '+config.perimeter+' точек');
 				
+				config.pointSize = params['pointSize'];
+				debug('размер точки: '+config.pointSize);
+				
+				config.pointsPerCircle = Math.round(config.perimeter / config.pointSize);
+				debug('точек на круг: '+config.pointsPerCircle);
+				
 				config.roundsPerSecond = params['roundsPerSecond']
 				debug('оборотов в секунду: '+config.roundsPerSecond);
 				
-				config.pointsPerCircle = 1000 / config.roundsPerSecond;
-				debug('точек на круг: '+config.pointsPerCircle);
+				config.roundPeriod = Math.round(1000/config.roundsPerSecond);
+				debug('период кргуа: '+config.roundPeriod);
 				
-				config.angleStep = Math.PI / config.pointsPerCircle
-				//debug('угловой шаг: '+config.angleStep+' радиан')
-				//debug('угловой шаг: '+(config.angleStep*180/Math.PI)+' градусов')
-				
-				config.pointSize = Math.round(config.perimeter/config.pointsPerCircle);
-				debug('размер точки: '+config.pointSize);
-				
-				config.pointDelay = params['pointDelay'];
+				config.pointDelay = config.roundPeriod/config.pointsPerCircle;
+				if (config.pointDelay < 1) config.pointDelay=1;
 				debug('задержка точки: '+config.pointDelay+' мс');
 				
 				config.arcLen = Number(params['arcLen'].replace(/%/,''));
@@ -46,9 +46,14 @@
 				
 				// процент от периода оборота
 				config.pointLifeTime = (1000/config.roundsPerSecond) * (config.arcLen/100);
+				if (config.pointLifeTime < 1) config.pointLifeTime=1;
 				debug('время жизни точки: '+config.pointLifeTime+' мс');
 				
+				config.angleStep = 2*Math.PI / config.pointsPerCircle;
+				debug('шаг угла: '+config.angleStep*180/Math.PI+' градусов');
+				
 				config.angle = 0;
+				config.run = params['run'];
 			}
 			
 			function start() {
@@ -56,10 +61,11 @@
 				config.intervalHandler = window.setInterval('tick()',config.pointDelay);
 			}
 			function tick() {
-				//alert('tick()');
-				calcXY();
-				createPoint();
-				increaseAngle();
+				if (config.run) {
+					calcXY();
+					createPoint();
+					increaseAngle();
+				}
 			}
 			function calcXY() {
 				config.x = config.radius * Math.cos(config.angle);
@@ -67,7 +73,8 @@
 				//alert('calcXY(), x='+config.x+', y='+config.y);
 			}
 			function increaseAngle() {
-				config.angle += config.angleStep
+				config.angle += config.angleStep;
+				if (config.angle > 2*Math.PI) config.angle = 0;
 			}
 			
 			function createDebugPanel(id='debugPanel') {
@@ -120,14 +127,16 @@
 		</script>
 	</head>
 	<body id='body'>
+		<button onClick="config.run=!config.run">Старт/Стоп</button>
 		<script>
 			initApp({
-				centerX:200,
-				centerY:200,
-				radius:100,
+				centerX:400,
+				centerY:300,
+				radius:200,
+				pointSize:10,
 				roundsPerSecond:1,
-				pointDelay:1,
 				arcLen:'50%', //процентов
+				run:true,
 			});
 			//tick();
 			start();
