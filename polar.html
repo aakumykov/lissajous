@@ -9,12 +9,40 @@
 		</style>
 		<script>
 			var config = new Object;
-				config.x0 = 200;
-				config.y0 = 200;
-				config.pointWidth = config.pointHeight = 10;
 			
-			function initApp() {
+			function initApp(params) {
 				createDebugPanel();
+				initConfig(params);
+			}
+			function initConfig(params) {
+				config.x0 = params['centerX'];
+				config.y0 = params['centerY'];
+				config.pointWidth = config.pointHeight = 10;
+				
+				config.radius = params['radius']
+				debug('радиус: '+config.radius+' точек');
+				
+				config.roundsPerSecond = params['roundsPerSecond']
+				debug('оборотов в секунду: '+config.roundsPerSecond);
+				
+				config.perimeter = Math.round(2*config.radius*Math.PI);
+				debug('периметр: '+config.perimeter+' точек');
+				
+				config.pointsPerCircle = 1000 / params['roundsPerSecond'];
+				debug('точек на круг: '+config.pointsPerCircle);
+				
+				config.pointSize = Math.round(config.perimeter/config.pointsPerCircle);
+				debug('размер точки: '+config.pointSize+' точек');
+				
+				config.pointDelay = params['pointDelay'];
+				debug('задержка точки: '+config.pointDelay+' мс');
+				
+				config.arcLen = Number(params['arcLen'].replace(/%/,''));
+				debug('длина дуги: '+config.arcLen+'%');
+				
+				// процент от периода оборота
+				config.pointLifetime = (1000/config.roundsPerSecond) * (config.arcLen/100);
+				debug('время жизни точки: '+config.pointLifetime+' мс');
 			}
 			function debug(data) {
 				var p = document.createElement('p')
@@ -55,31 +83,24 @@
 		</script>
 	</head>
 	<body id='body'>
-		<script>initApp();</script>
 		<script>
-			var dFi = 0.1;
-			var r = 100;
-			var c = 1;
-			
-			var perimeter = Math.round(2*r*Math.PI);
-			debug('периметр: '+perimeter);
-			
-			var pointsCount = Math.round(2*Math.PI/dFi);
-			debug('точек математически: '+pointsCount);
-			
-			var pointSize = Math.round(perimeter/pointsCount);
-			debug('математический размер точки: '+pointSize);
-			if (0==pointSize) pointSize = 1;
-			debug('скорректированный размер точки: '+pointSize);
-			config.pointWidth = config.pointHeight = pointSize;
-
-			for(var fi=0; fi<2*Math.PI; fi+=dFi) {
-				var x = r * Math.cos(fi);
-				var y = r * Math.sin(fi);
-				//debug(c+': x='+x+', y='+y);
-				c++;
-				createPoint(x,y);
-			}
+			initApp({
+				centerX:200,
+				centerY:200,
+				radius:100,
+				roundsPerSecond:10,
+				pointDelay:1,
+				arcLen:'50%', //процентов
+			});
+		</script>
+		
+		<script>
+			//~ for(var fi=0; fi<2*Math.PI; fi+=angle) {
+				//~ var x = r * Math.cos(fi);
+				//~ var y = r * Math.sin(fi);
+				//~ c++;
+				//~ createPoint(x,y);
+			//~ }
 		</script>
 	</body>
 </html>
