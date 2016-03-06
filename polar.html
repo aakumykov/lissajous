@@ -168,8 +168,22 @@
 				centerY:300,
 				radius:200,
 				pointSize:10,
-				color:'#202092',
-				roundsPerSecond:1,
+				color:'crimson',
+				roundsPerSecond:0.5,
+				direction:'right',
+				arcLen:'80%', //процентов
+				run:true,
+				debug:true,
+			});
+			start(appId1);
+			
+			var appId1 = initApp({
+				centerX:400,
+				centerY:300,
+				radius:180,
+				pointSize:10,
+				color:'gold',
+				roundsPerSecond:1.8,
 				direction:'right',
 				arcLen:'60%', //процентов
 				run:true,
@@ -177,33 +191,47 @@
 			});
 			start(appId1);
 			
-			var appId2 = initApp({
-				centerX:550,
-				centerY:200,
-				radius:100,
+			var appId1 = initApp({
+				centerX:400,
+				centerY:300,
+				radius:160,
 				pointSize:10,
-				color:'crimson',
-				roundsPerSecond:1,
-				direction:'left',
+				color:'#202092',
+				roundsPerSecond:1.6,
+				direction:'right',
 				arcLen:'60%', //процентов
 				run:true,
 				debug:true,
 			});
-			start(appId2);
+			start(appId1);
 			
-			var appId2 = initApp({
-				centerX:180,
-				centerY:120,
-				radius:50,
-				pointSize:10,
-				color:'limegreen',
-				roundsPerSecond:1,
-				direction:'left',
-				arcLen:'60%', //процентов
-				run:true,
-				debug:true,
-			});
-			start(appId2);
+			//~ var appId2 = initApp({
+				//~ centerX:550,
+				//~ centerY:200,
+				//~ radius:100,
+				//~ pointSize:10,
+				//~ color:'crimson',
+				//~ roundsPerSecond:1,
+				//~ direction:'left',
+				//~ arcLen:'60%', //процентов
+				//~ run:true,
+				//~ debug:true,
+			//~ });
+			//~ start(appId2);
+			
+			//~ var appId2 = initApp({
+				//~ centerX:180,
+				//~ centerY:120,
+				//~ radius:50,
+				//~ pointSize:10,
+				//~ color:'limegreen',
+				//~ roundsPerSecond:1,
+				//~ direction:'left',
+				//~ arcLen:'60%', //процентов
+				//~ run:true,
+				//~ debug:true,
+			//~ });
+			//~ start(appId2);
 		</script>
 	</body>
 </html>
