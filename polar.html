@@ -35,8 +35,14 @@
 				config[appId].perimeter = Math.round(2*config[appId].radius*Math.PI);
 				debug('периметр: '+config[appId].perimeter+' точек');
 				
+				config[appId].direction = params['direction'];
+				debug('направление: '+config[appId].direction);
+				
 				config[appId].pointSize = params['pointSize'];
 				debug('размер точки: '+config[appId].pointSize);
+				
+				config[appId].color = params['color'];
+				debug('размер точки: '+config[appId].color);
 				
 				config[appId].pointsPerCircle = Math.round(config[appId].perimeter / config[appId].pointSize);
 				debug('точек на круг: '+config[appId].pointsPerCircle);
@@ -58,8 +64,12 @@
 				config[appId].pointLifeTime = (1000/config[appId].roundsPerSecond) * (config[appId].arcLen/100);
 				if (config[appId].pointLifeTime < 1) config[appId].pointLifeTime=1;
 				debug('время жизни точки: '+config[appId].pointLifeTime+' мс');
-
-				config[appId].angle = 0;
+				
+				if ('right'==config[appId].direction) {
+					config[appId].angle = 0;
+				} else {
+					config[appId].angle = 2*Math.PI;
+				}
 				
 				config[appId].angleStep = 2*Math.PI / config[appId].pointsPerCircle;
 				debug('шаг угла: '+config[appId].angleStep*180/Math.PI+' градусов');
@@ -86,8 +96,16 @@
 				//alert('calcXY(), x='+config[appId].x+', y='+config[appId].y);
 			}
 			function increaseAngle(appId) {
-				config[appId].angle += config[appId].angleStep;
-				if (config[appId].angle > 2*Math.PI) config[appId].angle = 0;
+				if ('right'==config[appId].direction) {
+					config[appId].angle += config[appId].angleStep;
+					if (config[appId].angle > 2*Math.PI) config[appId].angle = 0;
+				} else {
+					config[appId].angle -= config[appId].angleStep;
+					if (config[appId].angle < 0) {
+						//alert(config[appId].angle);
+						config[appId].angle = 2*Math.PI;
+					}
+				}
 			}
 			
 			function createDebugPanel(id='debugPanel') {
@@ -109,7 +127,7 @@
 					point.style.width = config[appId].pointSize+'px';
 					point.style.height = config[appId].pointSize+'px';
 					point.style.position = 'absolute';
-					point.style.backgroundColor = 'deepskyblue';
+					point.style.backgroundColor = config[appId].color;
 					point.style.borderRadius = config[appId].pointSize+'px';
 					point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)';
 				
@@ -145,18 +163,33 @@
 	<body id='body'>
 		<button onClick="config.run=!config.run">Старт/Стоп</button>
 		<script>
-			appId = initApp({
+			var appId1 = initApp({
 				centerX:400,
 				centerY:300,
 				radius:200,
 				pointSize:10,
+				color:'#202092',
 				roundsPerSecond:1,
+				direction:'right',
 				arcLen:'50%', //процентов
 				run:true,
 				debug:true,
 			});
-			//tick();
-			start(appId);
+			start(appId1);
+			
+			var appId2 = initApp({
+				centerX:200,
+				centerY:200,
+				radius:100,
+				pointSize:10,
+				color:'crimson',
+				roundsPerSecond:1,
+				direction:'left',
+				arcLen:'50%', //процентов
+				run:true,
+				debug:true,
+			});
+			start(appId2);
 		</script>
 	</body>
 </html>
