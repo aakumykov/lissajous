@@ -12,69 +12,82 @@
 			
 			function initApp(params) {
 				createDebugPanel();
+				
+				var appId = Math.ceil(Math.random()*1000000000);
+				params['appId'] = appId;
 				initConfig(params);
+				
+				return appId;
 			}
 			function initConfig(params) {
-				config.x0 = params['centerX'];
-				config.y0 = params['centerY'];
-				config.pointWidth = config.pointHeight = 10;
+				var appId = params['appId'];
+				config[appId] = {};
 				
-				config.radius = params['radius']
-				debug('радиус: '+config.radius+' точек');
+				config.debug = params['debug'];
 				
-				config.perimeter = Math.round(2*config.radius*Math.PI);
-				debug('периметр: '+config.perimeter+' точек');
+				config[appId].x0 = params['centerX'];
+				config[appId].y0 = params['centerY'];
+				config[appId].pointWidth = config[appId].pointHeight = 10;
 				
-				config.pointSize = params['pointSize'];
-				debug('размер точки: '+config.pointSize);
+				config[appId].radius = params['radius']
+				debug('радиус: '+config[appId].radius+' точек');
 				
-				config.pointsPerCircle = Math.round(config.perimeter / config.pointSize);
-				debug('точек на круг: '+config.pointsPerCircle);
+				config[appId].perimeter = Math.round(2*config[appId].radius*Math.PI);
+				debug('периметр: '+config[appId].perimeter+' точек');
 				
-				config.roundsPerSecond = params['roundsPerSecond']
-				debug('оборотов в секунду: '+config.roundsPerSecond);
+				config[appId].pointSize = params['pointSize'];
+				debug('размер точки: '+config[appId].pointSize);
 				
-				config.roundPeriod = Math.round(1000/config.roundsPerSecond);
-				debug('период кргуа: '+config.roundPeriod);
+				config[appId].pointsPerCircle = Math.round(config[appId].perimeter / config[appId].pointSize);
+				debug('точек на круг: '+config[appId].pointsPerCircle);
 				
-				config.pointDelay = config.roundPeriod/config.pointsPerCircle;
-				if (config.pointDelay < 1) config.pointDelay=1;
-				debug('задержка точки: '+config.pointDelay+' мс');
+				config[appId].roundsPerSecond = params['roundsPerSecond']
+				debug('оборотов в секунду: '+config[appId].roundsPerSecond);
 				
-				config.arcLen = Number(params['arcLen'].replace(/%/,''));
-				debug('длина дуги: '+config.arcLen+'%');
+				config[appId].roundPeriod = Math.round(1000/config[appId].roundsPerSecond);
+				debug('период кргуа: '+config[appId].roundPeriod);
+				
+				config[appId].pointDelay = config[appId].roundPeriod/config[appId].pointsPerCircle;
+				if (config[appId].pointDelay < 1) config[appId].pointDelay=1;
+				debug('задержка точки: '+config[appId].pointDelay+' мс');
+				
+				config[appId].arcLen = Number(params['arcLen'].replace(/%/,''));
+				debug('длина дуги: '+config[appId].arcLen+'%');
 				
 				// процент от периода оборота
-				config.pointLifeTime = (1000/config.roundsPerSecond) * (config.arcLen/100);
-				if (config.pointLifeTime < 1) config.pointLifeTime=1;
-				debug('время жизни точки: '+config.pointLifeTime+' мс');
+				config[appId].pointLifeTime = (1000/config[appId].roundsPerSecond) * (config[appId].arcLen/100);
+				if (config[appId].pointLifeTime < 1) config[appId].pointLifeTime=1;
+				debug('время жизни точки: '+config[appId].pointLifeTime+' мс');
+
+				config[appId].angle = 0;
 				
-				config.angleStep = 2*Math.PI / config.pointsPerCircle;
-				debug('шаг угла: '+config.angleStep*180/Math.PI+' градусов');
+				config[appId].angleStep = 2*Math.PI / config[appId].pointsPerCircle;
+				debug('шаг угла: '+config[appId].angleStep*180/Math.PI+' градусов');
 				
-				config.angle = 0;
 				config.run = params['run'];
 			}
 			
-			function start() {
-				tick();
-				config.intervalHandler = window.setInterval('tick()',config.pointDelay);
+			function start(appId) {
+				//alert('start('+appId+')');
+				tick(appId);
+				config[appId].intervalHandler = window.setInterval("tick('"+appId+"')",config[appId].pointDelay);
 			}
-			function tick() {
+			function tick(appId) {
+				//alert('tick('+appId+')');
 				if (config.run) {
-					calcXY();
-					createPoint();
-					increaseAngle();
+					calcXY(appId);
+					createPoint(appId);
+					increaseAngle(appId);
 				}
 			}
-			function calcXY() {
-				config.x = config.radius * Math.cos(config.angle);
-				config.y = config.radius * Math.sin(config.angle);
-				//alert('calcXY(), x='+config.x+', y='+config.y);
+			function calcXY(appId) {
+				config[appId].x = config[appId].radius * Math.cos(config[appId].angle);
+				config[appId].y = config[appId].radius * Math.sin(config[appId].angle);
+				//alert('calcXY(), x='+config[appId].x+', y='+config[appId].y);
 			}
-			function increaseAngle() {
-				config.angle += config.angleStep;
-				if (config.angle > 2*Math.PI) config.angle = 0;
+			function increaseAngle(appId) {
+				config[appId].angle += config[appId].angleStep;
+				if (config[appId].angle > 2*Math.PI) config[appId].angle = 0;
 			}
 			
 			function createDebugPanel(id='debugPanel') {
@@ -90,24 +103,25 @@
 				document.getElementById('body').appendChild(panel)
 				return panel
 			}
-			function createPoint(){
+			function createPoint(appId){
+				//alert('createPoint('+appId+')');
 				var point = document.createElement('div');
-					point.style.width = config.pointSize+'px';
-					point.style.height = config.pointSize+'px';
+					point.style.width = config[appId].pointSize+'px';
+					point.style.height = config[appId].pointSize+'px';
 					point.style.position = 'absolute';
 					point.style.backgroundColor = 'deepskyblue';
-					point.style.borderRadius = config.pointSize+'px';
+					point.style.borderRadius = config[appId].pointSize+'px';
 					point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)';
 				
-				var realX = (config.x0 + config.x - config.pointSize/2);
-				var realY = (config.y0 + config.y - config.pointSize/2);
+				var realX = (config[appId].x0 + config[appId].x - config[appId].pointSize/2);
+				var realY = (config[appId].y0 + config[appId].y - config[appId].pointSize/2);
 				//alert('realX='+realX+', realY='+realY);
 					point.style.left = realX + 'px';
 					point.style.top = realY + 'px';
 				
-				var id = 'point_'+String(realX)+'_'+String(realY);
+				var id = appId+'_point_'+String(realX)+'_'+String(realY);
 				point.id = id;
-				window.setTimeout("removePoint('"+id+"')",config.pointLifeTime);
+				window.setTimeout("removePoint('"+id+"')",config[appId].pointLifeTime);
 				document.body.appendChild(point);
 			}
 			function removePoint(id) {
@@ -116,20 +130,22 @@
 			}
 			
 			function debug(data) {
-				var p = document.createElement('p')
-					p.style.paddingLeft = '3px'
-					p.style.fontSize = '11px'
-					p.style.fontFamily = 'monospace'
-					p.innerHTML = data
-				var panel = document.getElementById('debugPanel')
-					panel.appendChild(p)
+				if (config.debug) {
+					var p = document.createElement('p')
+						p.style.paddingLeft = '3px'
+						p.style.fontSize = '11px'
+						p.style.fontFamily = 'monospace'
+						p.innerHTML = data
+					var panel = document.getElementById('debugPanel')
+						panel.appendChild(p)
+				}
 			}
 		</script>
 	</head>
 	<body id='body'>
 		<button onClick="config.run=!config.run">Старт/Стоп</button>
 		<script>
-			initApp({
+			appId = initApp({
 				centerX:400,
 				centerY:300,
 				radius:200,
@@ -137,9 +153,10 @@
 				roundsPerSecond:1,
 				arcLen:'50%', //процентов
 				run:true,
+				debug:true,
 			});
 			//tick();
-			start();
+			start(appId);
 		</script>
 	</body>
 </html>
