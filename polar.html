@@ -31,6 +31,10 @@
 				config.pointsPerCircle = 1000 / params['roundsPerSecond'];
 				debug('точек на круг: '+config.pointsPerCircle);
 				
+				config.angleStep = Math.PI / config.pointsPerCircle
+				debug('угловой шаг: '+config.angleStep+' радиан')
+				debug('угловой шаг: '+(config.angleStep*180/Math.PI)+' градусов')
+				
 				config.pointSize = Math.round(config.perimeter/config.pointsPerCircle);
 				debug('размер точки: '+config.pointSize+' точек');
 				
@@ -43,16 +47,40 @@
 				// процент от периода оборота
 				config.pointLifetime = (1000/config.roundsPerSecond) * (config.arcLen/100);
 				debug('время жизни точки: '+config.pointLifetime+' мс');
+				
+				config.angle = 0;
 			}
-			function debug(data) {
-				var p = document.createElement('p')
-					p.style.paddingLeft = '3px'
-					p.style.fontSize = '11px'
-					p.style.fontFamily = 'monospace'
-					p.innerHTML = data
-				var panel = document.getElementById('debugPanel')
-					panel.appendChild(p)
+			
+			function tick() {
+				alert('tick()');
+				calcXY();
+				createPoint();
+				increaseAngle();
 			}
+			function calcXY() {
+				config.x = config.radius * Math.cos(config.angle);
+				config.y = config.radius * Math.sin(config.angle);
+				alert('calcXY(), x='+config.x+', y='+config.y);
+			}
+			function createPoint(){
+				var point = document.createElement('div');
+					point.style.width = config.pointSize+'px';
+					point.style.height = config.pointSize+'px';
+					point.style.position = 'absolute';
+					point.style.backgroundColor = 'deepskyblue';
+					point.style.borderRadius = config.pointSize+'px';
+					point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)';
+				var realX = (config.x0 + config.x - config.pointSize/2);
+				var realY = (config.y0 + config.y - config.pointSize/2);
+				alert('realX='+realX+', realY='+realY);
+					point.style.left = realX + 'px';
+					point.style.top = realY + 'px';
+				document.body.appendChild(point);
+			}
+			function increaseAngle() {
+				config.angle += config.angleStep
+			}
+			
 			function createDebugPanel(id='debugPanel') {
 				var panel = document.createElement('div')
 					panel.style.position = 'absolute'
@@ -66,19 +94,19 @@
 				document.getElementById('body').appendChild(panel)
 				return panel
 			}
-			function createPoint(x,y){
-				var point = document.createElement('div');
-					point.width = config.pointWidth;
-					point.height = config.pointHeight;
-					point.style.width = point.width+'px';
-					point.style.height = point.height+'px';
-					point.style.position = 'absolute';
-					point.style.backgroundColor = 'deepskyblue';
-					point.style.borderRadius = point.width+'px';
-					point.style.boxShadow = '1px 1px 2px rgba(128,128,128,0.4)';
-					point.style.left = config.x0 + x + 'px';
-					point.style.top = config.y0 + y + 'px';
-				document.body.appendChild(point);
+			function debug(data) {
+				var p = document.createElement('p')
+					p.style.paddingLeft = '3px'
+					p.style.fontSize = '11px'
+					p.style.fontFamily = 'monospace'
+					p.innerHTML = data
+				var panel = document.getElementById('debugPanel')
+					panel.appendChild(p)
+			}
+		
+			function start() {
+				tick();
+				config.intervalHandler = window.setInterval('tick()',config.pointDelay);
 			}
 		</script>
 	</head>
@@ -92,15 +120,7 @@
 				pointDelay:1,
 				arcLen:'50%', //процентов
 			});
-		</script>
-		
-		<script>
-			//~ for(var fi=0; fi<2*Math.PI; fi+=angle) {
-				//~ var x = r * Math.cos(fi);
-				//~ var y = r * Math.sin(fi);
-				//~ c++;
-				//~ createPoint(x,y);
-			//~ }
+			tick();
 		</script>
 	</body>
 </html>
