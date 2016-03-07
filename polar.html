@@ -108,7 +108,9 @@
 				}
 			}
 			
-			function createDebugPanel(id='debugPanel') {
+			function createDebugPanel(id) {
+				if (null==id) var id='debugPanel';
+				
 				var panel = document.createElement('div')
 					panel.style.position = 'absolute'
 					panel.style.right = '0.5%'
